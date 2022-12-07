@@ -328,6 +328,10 @@ class CatBoostWithClustering:
         self.anomaly_option.set(params["anomaly_option"])
         if params["anomaly_option"]:
             self.anomaly_n_estimator.set(params["anomaly_n_estimator"])
+        
+        self.fs_option.set(params["fs_option"])
+        if params["fs_option"]:
+            self.mrmr_count.set(params["mrmr_count"])
        
         self.openEntries()
         self.openOtherEntries()
