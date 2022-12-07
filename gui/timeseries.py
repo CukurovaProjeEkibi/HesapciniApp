@@ -753,12 +753,14 @@ class TimeSeries:
                 "Adam": Adam(learning_rate=learning_rate),
                 "SGD": SGD(learning_rate=learning_rate, momentum=momentum),
                 "RMSprop": RMSprop(learning_rate=learning_rate, momentum=momentum)
-        }
+                }
 
         shape = (X.shape[1], X.shape[2])
         model_choice = self.model_var.get()
 
         if not self.do_optimization:
+            X_train = X
+            y_train = y
             model = Sequential()
             model.add(Input(shape=shape))
             
@@ -794,7 +796,7 @@ class TimeSeries:
 
             model.summary()
             
-            history = model.fit(X, y, epochs=self.hyperparameters["Epoch"].get(), batch_size=self.hyperparameters["Batch_Size"].get(), verbose=1, shuffle=False)
+            history = model.fit(X_train, y_train, epochs=self.hyperparameters["Epoch"].get(), batch_size=self.hyperparameters["Batch_Size"].get(), verbose=1, shuffle=False)
             loss = history.history["loss"][-1]
             self.train_loss.set(loss)
             self.model = model
@@ -905,7 +907,7 @@ class TimeSeries:
         if self.scale_var.get() != "None":
             self.pred = self.label_scaler.inverse_transform(self.pred)
         
-        self.pred = np.array(pred).reshape(-1)
+        self.pred = self.pred.reshape(-1)
         
         if not self.is_negative:
             self.pred = self.pred.clip(0, None)
