@@ -82,8 +82,8 @@ class RFWithClustering:
         cluster_frame.grid(column=1, row=0)
 
         ### DBSCAN
-        self.cluster_type = tk.IntVar(value=1)
-        tk.Radiobutton(cluster_frame, text="Dbscan", value=1, variable=self.cluster_type, command=self.openAllEntries).grid(column=0, row=0, sticky=tk.W)
+        self.cluster_type = tk.IntVar(value=0)
+        tk.Radiobutton(cluster_frame, text="Dbscan", value=0, variable=self.cluster_type, command=self.openAllEntries).grid(column=0, row=0, sticky=tk.W)
 
         self.dbscan_parameters = [tk.DoubleVar(value=0.5), tk.IntVar(value=3)]
         ttk.Label(cluster_frame, text="Eps:").grid(column=0, row=1)
@@ -95,7 +95,7 @@ class RFWithClustering:
         self.dbscan_neighbors_entry.grid(column=1, row=2, pady=2)
 
         ### CLARA
-        tk.Radiobutton(cluster_frame, text="Clara", value=2, variable=self.cluster_type, command=self.openAllEntries).grid(column=2, row=0, sticky=tk.W)
+        tk.Radiobutton(cluster_frame, text="Clara", value=1, variable=self.cluster_type, command=self.openAllEntries).grid(column=2, row=0, sticky=tk.W)
         self.clara_parameters = [tk.IntVar(value=3), tk.IntVar(value=2), tk.IntVar(value=5)]
         ttk.Label(cluster_frame, text="Cluster Amount:").grid(column=2, row=1)
         self.clara_eps_entry = ttk.Entry(cluster_frame, textvariable=self.clara_parameters[0], width=8, state=tk.DISABLED)
@@ -274,6 +274,14 @@ class RFWithClustering:
         if self.fs_option.get():
             params["mrmr_count"] = self.mrmr_count.get()
 
+        params["cluster_type"] = self.cluster_type.get()
+        params["dbscan_eps"] = self.dbscan_parameters[0].get()
+        params["dbscan_neighbors"] = self.dbscan_parameters[1].get()
+        
+        params["clara_cluster_amount"] = self.clara_parameters[0].get()
+        params["clara_iterations"] = self.clara_parameters[1].get()
+        params["clara_neighbors"] = self.clara_parameters[2].get()
+
         os.mkdir(path)
         with open(path+"/pred.npy", "wb") as outfile:
             np.save(outfile, self.pred)
@@ -329,6 +337,14 @@ class RFWithClustering:
         self.fs_option.set(params["fs_option"])
         if params["fs_option"]:
             self.mrmr_count.set(params["mrmr_count"])
+        
+        self.cluster_type.set(params["cluster_type"])
+        self.dbscan_parameters[0].set(params["dbscan_eps"])
+        self.dbscan_parameters[1].set(params["dbscan_neighbors"])
+        
+        self.clara_parameters[0].set(params["clara_cluster_amount"])
+        self.clara_parameters[1].set(params["clara_iterations"])
+        self.clara_parameters[2].set(params["clara_neighbors"])
        
         self.openEntries()
         self.openOtherEntries()
@@ -350,12 +366,12 @@ class RFWithClustering:
         self.fs_entry["state"] = tk.NORMAL if self.fs_option.get() else tk.DISABLED
 
         cluster_elements = [self.dbscan_eps_entry, self.dbscan_neighbors_entry, self.clara_eps_entry, self.clara_iterations_entry, self.clara_neighbors_entry]
-        if self.cluster_type.get() == 1:
+        if not self.cluster_type.get():
             for i in cluster_elements[:2]:
                 i["state"] = tk.NORMAL
             for i in cluster_elements[2:]:
                 i["state"] = tk.DISABLED
-        if self.cluster_type.get() == 2:
+        if self.cluster_type.get() == 1:
             for i in cluster_elements[:2]:
                 i["state"] = tk.DISABLED
             for i in cluster_elements[2:]:
