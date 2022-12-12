@@ -263,9 +263,15 @@ class RandomForest:
         path = filedialog.asksaveasfilename()
         if not path:
             return
+        
+        params = {}
         try:
-            params = self.model.get_params()
-        except:
+            model_params = self.model.get_params()
+            params["n_estimators"] = int(model_params["n_estimators"])
+            params["max_depth"] = int(model_params["max_depth"])
+            params["min_samples_split"] = int(model_params["min_samples_split"])
+            params["min_samples_leaf"] = int(model_params["min_samples_leaf"])
+        except Exception:
             popupmsg("Model is not created")
             return
         params["predictor_names"] = self.predictor_names
@@ -293,6 +299,9 @@ class RandomForest:
                 pickle_dump(self.feature_scaler, f)
             with open(path+"/label_scaler.pkl", "wb") as f:
                 pickle_dump(self.label_scaler, f)
+
+        print(params)
+        print([type(i) for i in params.values()])
         with open(path+"/model.json", 'w') as outfile:
             json.dump(params, outfile)
 
@@ -592,7 +601,7 @@ class RandomForest:
                     y = y[-size:]
                     regressor.fit(X, y)
                 self.model = regressor.best_estimator_
-            
+
             popupmsg("Best Params: " + str(self.model.get_params()))
         
     def forecast(self):

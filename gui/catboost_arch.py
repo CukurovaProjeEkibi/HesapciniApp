@@ -264,9 +264,13 @@ class CatBoost:
         path = filedialog.asksaveasfilename()
         if not path:
             return
+        params = {}
         try:
-            params = self.model.get_params() # type: ignore
-        except:
+            model_params = self.model.get_params()
+            params["max_depth"] = int(model_params["max_depth"])
+            params["iterations"] = int(model_params["iterations"])
+            params["learning_rate"] = int(model_params["learning_rate"])
+        except Exception:
             popupmsg("Model is not created")
             return
         params["predictor_names"] = self.predictor_names
